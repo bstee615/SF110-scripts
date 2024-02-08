@@ -3,6 +3,7 @@ from pathlib import Path
 
 build_xmls = list(Path(".").glob("*_*/build.xml"))
 
+count = 0
 for xml in build_xmls:
     # Load the XML file
     tree = etree.parse(xml)
@@ -19,4 +20,7 @@ for xml in build_xmls:
     classpath_element.append(new_classpath_child)
 
     # Save the modified XML tree back to the file
-    tree.write(xml.parent/(xml.stem+"_fixed.xml"), encoding="utf-8", xml_declaration=True)
+    tree.write(xml, encoding="utf-8", xml_declaration=True)
+    count += 1
+
+print(count, "fixes applied")
