@@ -6,7 +6,8 @@ with open("classes.txt") as f:
     classes = [tuple(l.strip().split()) for l in f.readlines()]
 build_dir = Path(".").absolute()
 df = pd.DataFrame(classes, columns=["program", "class"])
-df = df.sort_values(["program", "class"])
+df["program_no"] = df["program"].str.split("_").str[0].astype(int)
+df = df.sort_values(["program_no", "class"])
 print(df)
 
 for program, g in df.groupby("program"):
