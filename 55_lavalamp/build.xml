@@ -1,28 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <project name="lavalamp" default="compile" basedir=".">
 
   <!-- The directories for compilation targets -->
-  <property name="build.home"              value="build"/>
-  <property name="build.classes"           value="${build.home}/classes"/>
-  <property name="build.tests"             value="${build.home}/tests"/>
-  <property name="build.evosuite"          value="${build.home}/evosuite"/>
+  <property name="build.home" value="build"/>
+  <property name="build.classes" value="${build.home}/classes"/>
+  <property name="build.tests" value="${build.home}/tests"/>
+  <property name="build.evosuite" value="${build.home}/evosuite"/>
   
   <!-- Javac -->
-  <property name="compile.debug"           value="true"/>
-  <property name="compile.deprecation"     value="true"/>
-  <property name="compile.optimize"        value="false"/>
-  <property name="compile.source"          value="1.6"/>
-  <property name="compile.target"          value="1.6"/>
-  <property name="compile.encoding"        value="iso-8859-1"/>
+  <property name="compile.debug" value="true"/>
+  <property name="compile.deprecation" value="true"/>
+  <property name="compile.optimize" value="false"/>
+  <property name="compile.source" value="1.6"/>
+  <property name="compile.target" value="1.6"/>
+  <property name="compile.encoding" value="iso-8859-1"/>
   
 	
   <!-- The base directories for sources -->
-  <property name="source.java"             value="src/main/java"/>
-  <property name="test.java"               value="src/test/java"/>
-  <property name="source.resources"        value="src/main/resources"/>
-  <property name="test.resources"          value="src/test/resources"/>
-  <property name="evosuite.java"           value="evosuite-tests"/>
+  <property name="source.java" value="src/main/java"/>
+  <property name="test.java" value="src/test/java"/>
+  <property name="source.resources" value="src/main/resources"/>
+  <property name="test.resources" value="src/test/resources"/>
+  <property name="evosuite.java" value="evosuite-tests"/>
 
-  <property name="lib.dir"                 value="../lib/"/>
+  <property name="lib.dir" value="../lib/"/>
 
   <!-- The dependency libraries -->
   <path id="source.lib">
@@ -36,11 +37,11 @@
       <fileset dir="test-lib">
          <include name="**/*.jar"/>
       </fileset>
-      <pathelement location="${lib.dir}/junit-4.11.jar" />
+      <pathelement location="${lib.dir}/junit-4.11.jar"/>
   </path>
 
   <path id="evosuite.lib">
-      <pathelement location="${lib.dir}/evosuite.jar" />
+      <pathelement location="${lib.dir}/evosuite.jar"/>
   </path>  
   
     
@@ -49,15 +50,13 @@
 <!-- ========== Executable Targets ======================================== -->
 <!-- ====================================================================== -->
 
-  <target name="clean"
-          description="Clean build and distribution directories">
+  <target name="clean" description="Clean build and distribution directories">
     <delete dir="${build.home}"/>
   </target>
 
 <!-- ====================================================================== -->
 
-  <target name="prepare"
-          description="Prepare build directory">
+  <target name="prepare" description="Prepare build directory">
     <mkdir dir="${build.home}"/>
     <mkdir dir="${source.java}"/>
     <mkdir dir="${source.resources}"/>
@@ -69,18 +68,10 @@
 
 <!-- ====================================================================== -->
 
-  <target name="compile" depends="prepare"
-          description="Compile main code">
+  <target name="compile" depends="prepare" description="Compile main code">
     <mkdir dir="${build.classes}"/>
-    <javac  srcdir="${source.java}"
-           destdir="${build.classes}"
-            source="${compile.source}"
-            target="${compile.target}"
-             debug="${compile.debug}"
-       deprecation="${compile.deprecation}"
-          optimize="${compile.optimize}"
-          encoding="${compile.encoding}">
-          <classpath refid="source.lib" />
+    <javac srcdir="${source.java}" destdir="${build.classes}" source="${compile.source}" target="${compile.target}" debug="${compile.debug}" deprecation="${compile.deprecation}" optimize="${compile.optimize}" encoding="${compile.encoding}">
+          <classpath refid="source.lib"/>
     </javac>
     <copy todir="${build.classes}">
         <fileset dir="${source.java}" excludes="**/*.java"/>
@@ -92,20 +83,12 @@
 
 <!-- ====================================================================== -->
   
-  <target name="compile-tests" depends="compile"
-          description="Compile user provided tests">
+  <target name="compile-tests" depends="compile" description="Compile user provided tests">
     <mkdir dir="${build.tests}"/>
-    <javac  srcdir="${test.java}"
-           destdir="${build.tests}"
-             debug="${compile.debug}"
-            source="${compile.source}"
-            target="${compile.target}"
-       deprecation="${compile.deprecation}"
-          optimize="${compile.optimize}"
-          encoding="${compile.encoding}">
+    <javac srcdir="${test.java}" destdir="${build.tests}" debug="${compile.debug}" source="${compile.source}" target="${compile.target}" deprecation="${compile.deprecation}" optimize="${compile.optimize}" encoding="${compile.encoding}">
           <classpath>
-            <path refid="source.lib" />
-            <path refid="test.lib" />
+            <path refid="source.lib"/>
+            <path refid="test.lib"/>
             <pathelement path="${build.classes}"/>
           </classpath>
     </javac>
@@ -117,20 +100,13 @@
   
 <!-- ====================================================================== -->
   
-  <target name="compile-evosuite" depends="compile"
-          description="Compile EvoSuite generated tests">
+  <target name="compile-evosuite" depends="compile" description="Compile EvoSuite generated tests">
     <mkdir dir="${build.evosuite}"/>
-    <javac  srcdir="${evosuite.java}"
-           destdir="${build.evosuite}"
-            source="${compile.source}"
-            target="${compile.target}"
-             debug="${compile.debug}"
-       deprecation="${compile.deprecation}"
-          optimize="${compile.optimize}">
+    <javac srcdir="${evosuite.java}" destdir="${build.evosuite}" source="${compile.source}" target="${compile.target}" debug="${compile.debug}" deprecation="${compile.deprecation}" optimize="${compile.optimize}">
           <classpath>
-            <path refid="source.lib" />
-            <path refid="test.lib" />
-            <path refid="evosuite.lib" />
+            <path refid="source.lib"/>
+            <path refid="test.lib"/>
+            <path refid="evosuite.lib"/>
             <pathelement path="${build.classes}"/>
           </classpath>
     </javac>
@@ -138,16 +114,14 @@
 
 <!-- ====================================================================== -->
 
-  <target name="test" depends="compile-tests"
-          description="Run provided tests">
-     <junit printsummary="yes" haltonfailure="no" fork="yes"
-          showoutput="yes">
-        <formatter type="plain" usefile="false" />
+  <target name="test" depends="compile-tests" description="Run provided tests">
+     <junit printsummary="yes" haltonfailure="no" fork="yes" showoutput="yes">
+        <formatter type="plain" usefile="false"/>
         <classpath>
            <pathelement path="${build.classes}"/>
            <pathelement path="${build.tests}"/>
-           <path refid="source.lib" />
-           <path refid="test.lib" />
+           <path refid="source.lib"/>
+           <path refid="test.lib"/>
         </classpath>
         <batchtest fork="yes">
            <fileset dir="${test.java}">
@@ -159,16 +133,14 @@
 
 <!-- ====================================================================== -->
 
-  <target name="evosuite-test" depends="compile-tests"
-          description="Run EvoSuite generated tests">
-     <junit printsummary="yes" haltonfailure="no" fork="yes"
-          showoutput="yes">
-        <formatter type="plain" usefile="false" />
+  <target name="evosuite-test" depends="compile-tests" description="Run EvoSuite generated tests">
+     <junit printsummary="yes" haltonfailure="no" fork="yes" showoutput="yes">
+        <formatter type="plain" usefile="false"/>
         <classpath>
            <pathelement path="${build.classes}"/>
            <pathelement path="${build.evosuite}"/>
-           <path refid="source.lib" />
-           <path refid="test.lib" />
+           <path refid="source.lib"/>
+           <path refid="test.lib"/>
         </classpath>
         <batchtest fork="yes">
            <fileset dir="${test.java}">
@@ -180,8 +152,7 @@
   
   <!-- ====================================================================== -->
 
-  <target name="jar" depends="compile"
-          description="Create main jar file">
+  <target name="jar" depends="compile" description="Create main jar file">
     <jar jarfile="${ant.project.name}.jar">
       <fileset dir="${build.classes}"/>      
     </jar>
@@ -190,8 +161,7 @@
   
   <!-- ====================================================================== -->
 
-  <target name="jar-tests" depends="compile-tests"
-          description="Create tests jar file">
+  <target name="jar-tests" depends="compile-tests" description="Create tests jar file">
     <jar jarfile="${ant.project.name}-tests.jar">
       <fileset dir="${build.tests}"/>      
     </jar>
@@ -200,8 +170,7 @@
   
   <!-- ====================================================================== -->
 
-  <target name="jar-evosuite" depends="compile-evosuite"
-          description="Create evosuite tests jar file">
+  <target name="jar-evosuite" depends="compile-evosuite" description="Create evosuite tests jar file">
     <jar jarfile="${ant.project.name}-evosuite.jar">
       <fileset dir="${build.evosuite}"/>
     </jar>
