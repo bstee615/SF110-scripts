@@ -26,10 +26,13 @@ python3 print_item.py   # Print the results
 
 If you use this software, please cite it as below.
 
+```
 @software{Steenhoek_SF110_support_scripts_2024,
 author = {Steenhoek, Benjamin Jeremiah},
 month = feb,
 title = {{SF110 support scripts}},
+url = {https://github.com/bstee615/SF110-scripts},
 version = {1.0.0},
 year = {2024}
 }
+```
