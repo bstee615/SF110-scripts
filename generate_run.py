@@ -22,30 +22,35 @@ def process_one_project(t):
     output = {}
     output["program"] = program = group["program"].iloc[0]
     cwd = build_dir/program
-    def run_command(command):
-        proc = subprocess.run(command, shell=True, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")
-        return proc.stdout, proc.returncode
+    def run_command(command, timeout=None):
+        proc = subprocess.run(command, shell=True, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8", timeout=timeout)
+        return {
+            "command": command,
+            "stdout": proc.stdout,
+            "stderr": proc.stderr,
+            "returncode": proc.returncode,
+        }
     try:
         test_dir = cwd/"evosuite-tests"
         if test_dir.exists():
             shutil.rmtree(cwd/"evosuite-tests")
         output["clean"] = run_command("ant clean")
 
-        output["generate"] = {classname: False for classname in group["class"]}
-        if err:
-            raise Exception(f"Process exited with error code: {err}")
-        for classname in group["class"]:
-            output["generate"][classname], err = run_command(f"java -jar ../lib/evosuite-1.0.6.jar -class {classname}")
-            if err:
-                raise Exception(f"Process exited with error code: {err}")
+        output["compile"] = run_command("ant compile")
+        if output['compile']['returncode']:
+            raise Exception(f"Process {output['compile']['command']} exited with error code: {output['compile']['returncode']}")
 
-        output["compile-test"], err = run_command("ant compile-tests")
-        if err:
-            raise Exception(f"Process exited with error code: {err}")
+        output["generate"] = {classname: None for classname in group["class"]}
+        for classname in group["class"].head(10): # to limit execution time, limit to first 10 classes alphabetically
+            output["generate"][classname] = run_command(f"java -jar ../lib/evosuite-1.0.6.jar -Dglobal_timeout 30 -class {classname}")
 
-        output["run-test"], err = run_command("ant evosuite-test")
-        if err:
-            raise Exception(f"Process exited with error code: {err}")
+        output["compile-test"] = run_command("ant compile-tests")
+        if output['compile-test']['returncode']:
+            raise Exception(f"Process {output['compile-test']['command']} exited with error code: {output['compile-test']['returncode']}")
+
+        output["run-test"] = run_command("ant evosuite-test")
+        if output['run-test']['returncode']:
+            raise Exception(f"Process {output['run-test']['command']} exited with error code: {output['run-test']['returncode']}")
     except Exception as ex:
         output["error"] = {
             "message": str(ex),
