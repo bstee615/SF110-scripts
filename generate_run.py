@@ -29,9 +29,7 @@ def process_one_project(t):
         test_dir = cwd/"evosuite-tests"
         if test_dir.exists():
             shutil.rmtree(cwd/"evosuite-tests")
-        output["compile"], err = run_command("ant compile")
-        if err:
-            raise Exception(f"Process exited with error code: {err}")
+        output["clean"] = run_command("ant clean")
 
         output["generate"] = {classname: False for classname in group["class"]}
         if err:
