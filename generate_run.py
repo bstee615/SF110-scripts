@@ -4,8 +4,8 @@ import json
 import shutil
 import traceback
 import pandas as pd
-from pandarallel import pandarallel
-pandarallel.initialize(progress_bar=True, nb_workers=6)
+import tqdm
+from multiprocessing import Pool
 
 with open("classes.txt") as f:
     classes = [tuple(l.strip().split()) for l in f.readlines()]
@@ -17,7 +17,8 @@ print("Loaded manifest:")
 print(df)
 
 
-def process_one_project(group):
+def process_one_project(t):
+    _, group = t
     output = {}
     output["program"] = program = group["program"].iloc[0]
     cwd = build_dir/program
@@ -54,6 +55,7 @@ def process_one_project(group):
         }
     return output
 
-with open("results.jsonl", "w") as f:
-    for output in df.groupby("program").parallel_apply(process_one_project):
-        print(json.dumps(output), file=f)
+with open("results.jsonl", "w") as f, Pool(6) as pool:
+    g = df.groupby("program")
+    for output in tqdm.tqdm(pool.imap_unordered(process_one_project, g), total=len(g), desc="Processing repos"):
+        print(json.dumps(output), file=f, flush=True)
