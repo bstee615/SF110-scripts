@@ -39,7 +39,7 @@ def process_one_project(t, args):
         for classname in classes: # to limit execution time, limit to first 10 classes alphabetically
             output["generate"][classname] = run_command(f"java -jar ../lib/evosuite-1.0.6.jar -Dglobal_timeout {args.test_generation_timeout} -class {classname}")
 
-        output["compile-test"] = run_command("ant compile-tests")
+        output["compile-test"] = run_command("ant compile-evosuite")
         if output['compile-test']['returncode']:
             raise Exception(f"Process {output['compile-test']['command']} exited with error code: {output['compile-test']['returncode']}")
 
