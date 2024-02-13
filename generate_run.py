@@ -8,6 +8,7 @@ import tqdm
 from multiprocessing import Pool
 from functools import partial
 import argparse
+from print_results import report_results
 
 def process_one_project(t, args):
     _, group = t
@@ -101,3 +102,5 @@ if __name__ == "__main__":
         it = pool.imap_unordered(partial(process_one_project, args=args), g)
         for output in tqdm.tqdm(it, total=len(g), desc="Processing repos"):
             print(json.dumps(output), file=f, flush=True)
+
+    report_results(dst_file)
