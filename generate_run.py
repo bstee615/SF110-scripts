@@ -25,7 +25,10 @@ def process_one_project(t, args):
     try:
         test_dir = cwd/"evosuite-tests"
         if test_dir.exists():
-            shutil.rmtree(cwd/"evosuite-tests")
+            shutil.rmtree(test_dir)
+        result_dir = cwd/"evosuite-report"
+        if result_dir.exists():
+            shutil.rmtree(result_dir)
         output["clean"] = run_command("ant clean")
 
         output["compile"] = run_command("ant compile")
