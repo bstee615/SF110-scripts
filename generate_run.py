@@ -91,7 +91,7 @@ if __name__ == "__main__":
     df["program_no"] = df["program"].str.split("_").str[0].astype(int)
     df = df.sort_values(["program_no", "class"])
     if args.max_projects:
-        df = df.head(args.max_projects)
+        df = df[df["program"].isin(df["program"].drop_duplicates(keep="first").head(args.max_projects))]
     print("Loaded manifest:")
     print(df)
 
