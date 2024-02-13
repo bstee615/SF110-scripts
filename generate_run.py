@@ -23,32 +23,37 @@ def process_one_project(t, args):
             "returncode": proc.returncode,
         }
     try:
-        test_dir = cwd/"evosuite-tests"
-        if test_dir.exists():
-            shutil.rmtree(test_dir)
-        result_dir = cwd/"evosuite-report"
-        if result_dir.exists():
-            shutil.rmtree(result_dir)
-        output["clean"] = run_command("ant clean")
+        if "clean" in args.steps:
+            test_dir = cwd/"evosuite-tests"
+            if test_dir.exists():
+                shutil.rmtree(test_dir)
+            result_dir = cwd/"evosuite-report"
+            if result_dir.exists():
+                shutil.rmtree(result_dir)
+            output["clean"] = run_command("ant clean")
 
-        output["compile"] = run_command("ant compile")
-        if output['compile']['returncode']:
-            raise Exception(f"Process {output['compile']['command']} exited with error code: {output['compile']['returncode']}")
+        if "project-compile" in args.steps:
+            output["compile"] = run_command("ant compile")
+            if output['compile']['returncode']:
+                raise Exception(f"Process {output['compile']['command']} exited with error code: {output['compile']['returncode']}")
 
-        output["generate"] = {classname: None for classname in group["class"]}
-        classes = group["class"]
-        if args.max_classes_per_project:
-            classes = classes.head(args.max_classes_per_project)
-        for classname in classes: # to limit execution time, limit to first 10 classes alphabetically
-            output["generate"][classname] = run_command(f"java -jar ../lib/evosuite-1.0.6.jar -Dglobal_timeout {args.test_generation_timeout} -class {classname}")
+        if "evosuite-generate" in args.steps:
+            output["generate"] = {classname: None for classname in group["class"]}
+            classes = group["class"]
+            if args.max_classes_per_project:
+                classes = classes.head(args.max_classes_per_project)
+            for classname in classes: # to limit execution time, limit to first 10 classes alphabetically
+                output["generate"][classname] = run_command(f"java -jar ../lib/evosuite-1.0.6.jar -Dglobal_timeout {args.test_generation_timeout} -class {classname}")
 
-        output["compile-test"] = run_command("ant compile-evosuite")
-        if output['compile-test']['returncode']:
-            raise Exception(f"Process {output['compile-test']['command']} exited with error code: {output['compile-test']['returncode']}")
+        if "evosuite-compile" in args.steps:
+            output["compile-test"] = run_command("ant compile-evosuite")
+            if output['compile-test']['returncode']:
+                raise Exception(f"Process {output['compile-test']['command']} exited with error code: {output['compile-test']['returncode']}")
 
-        output["run-test"] = run_command("ant evosuite-test", timeout=args.test_run_timeout)
-        if output['run-test']['returncode']:
-            raise Exception(f"Process {output['run-test']['command']} exited with error code: {output['run-test']['returncode']}")
+        if "evosuite-test" in args.steps:
+            output["run-test"] = run_command("ant evosuite-test", timeout=args.test_run_timeout)
+            if output['run-test']['returncode']:
+                raise Exception(f"Process {output['run-test']['command']} exited with error code: {output['run-test']['returncode']}")
     except Exception as ex:
         output["error"] = {
             "message": str(ex),
@@ -68,6 +73,9 @@ if __name__ == "__main__":
                         help="Maximum number of classes to generate tests for per project (sorted lexicographically)")
     parser.add_argument("--nproc", type=int,
                         help="Number of processes to run in parallel")
+    STEPS = ["clean", "project-compile", "evosuite-generate", "evosuite-compile", "evosuite-test"]
+    parser.add_argument("--steps", type=str, nargs="+", default=STEPS, choices=STEPS,
+                        help="Steps to run")
     args = parser.parse_args()
 
     # Load manifest of programs and classes
@@ -83,7 +91,8 @@ if __name__ == "__main__":
     print(df)
 
     # Generate/run tests and write results to file
-    with open("results.jsonl", "w") as f, Pool(args.nproc) as pool:
+    dst_file = f"results_{','.join(args.steps)}.jsonl"
+    with open(dst_file, "w") as f, Pool(args.nproc) as pool:
         g = df.groupby("program")
         it = pool.imap_unordered(partial(process_one_project, args=args), g)
         for output in tqdm.tqdm(it, total=len(g), desc="Processing repos"):

@@ -1,4 +1,4 @@
 */*
 !*/build.xml
 *.log
-results.jsonl
+results*.jsonl
