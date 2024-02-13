@@ -38,7 +38,7 @@
          <include name="**/*.jar"/>
       </fileset>
       <pathelement location="${lib.dir}/junit-4.11.jar"/>
-  <pathelement location="${lib.dir}/hamcrest-core-1.3.jar"/></path>
+  </path>
 
   <path id="evosuite.lib">
       <pathelement location="${lib.dir}/evosuite.jar"/>
@@ -141,7 +141,7 @@
            <pathelement path="${build.evosuite}"/>
            <path refid="source.lib"/>
            <path refid="test.lib"/>
-        <pathelement path="${build.tests}"/></classpath>
+        </classpath>
         <batchtest fork="yes">
            <fileset dir="${test.java}">
              <include name="**/*.java"/>
