@@ -41,6 +41,8 @@ def process_one_project(t, args):
             output["project-compile"] = run_command("ant compile")
             if output["project-compile"]["returncode"]:
                 raise RunCommandException(output["project-compile"])
+            
+        # TODO: run existing project tests in step "project-test"
 
         if "evosuite-generate" in args.steps:
             output["evosuite-generate"] = {classname: None for classname in group["class"]}
