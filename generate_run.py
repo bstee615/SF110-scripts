@@ -22,6 +22,10 @@ def process_one_project(t, args):
             "stderr": proc.stderr,
             "returncode": proc.returncode,
         }
+    class RunCommandException(Exception):
+        """Report an error code resulting from running a command."""
+        def __init__(self, result):
+            super().__init__(f"Process {result['command']} exited with error code: {result['returncode']}")
     try:
         if "clean" in args.steps:
             test_dir = cwd/"evosuite-tests"
@@ -33,27 +37,27 @@ def process_one_project(t, args):
             output["clean"] = run_command("ant clean")
 
         if "project-compile" in args.steps:
-            output["compile"] = run_command("ant compile")
-            if output['compile']['returncode']:
-                raise Exception(f"Process {output['compile']['command']} exited with error code: {output['compile']['returncode']}")
+            output["project-compile"] = run_command("ant compile")
+            if output["project-compile"]["returncode"]:
+                raise RunCommandException(output["project-compile"])
 
         if "evosuite-generate" in args.steps:
-            output["generate"] = {classname: None for classname in group["class"]}
+            output["evosuite-generate"] = {classname: None for classname in group["class"]}
             classes = group["class"]
             if args.max_classes_per_project:
                 classes = classes.head(args.max_classes_per_project)
             for classname in classes: # to limit execution time, limit to first 10 classes alphabetically
-                output["generate"][classname] = run_command(f"java -jar ../lib/evosuite-1.0.6.jar -Dglobal_timeout {args.test_generation_timeout} -class {classname}")
+                output["evosuite-generate"][classname] = run_command(f"java -jar ../lib/evosuite-1.0.6.jar -Dglobal_timeout {args.test_generation_timeout} -class {classname}")
 
         if "evosuite-compile" in args.steps:
-            output["compile-test"] = run_command("ant compile-evosuite")
-            if output['compile-test']['returncode']:
-                raise Exception(f"Process {output['compile-test']['command']} exited with error code: {output['compile-test']['returncode']}")
+            output["evosuite-compile"] = run_command("ant compile-evosuite")
+            if output["evosuite-compile"]["returncode"]:
+                raise RunCommandException(output["evosuite-compile"])
 
         if "evosuite-test" in args.steps:
-            output["run-test"] = run_command("ant evosuite-test", timeout=args.test_run_timeout)
-            if output['run-test']['returncode']:
-                raise Exception(f"Process {output['run-test']['command']} exited with error code: {output['run-test']['returncode']}")
+            output["evosuite-test"] = run_command("ant evosuite-test", timeout=args.test_run_timeout)
+            if output["evosuite-test"]["returncode"]:
+                raise RunCommandException(output["evosuite-test"])
     except Exception as ex:
         output["error"] = {
             "message": str(ex),
