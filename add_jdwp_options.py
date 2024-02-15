@@ -1,3 +1,11 @@
+"""
+This script adds an option ${traced.wait}, which causes Ant-JUnit to wait for a debugger before executing tests.
+By default, the option is "false", so the build.xml behaves like the original.
+The option can be activated like so:
+
+ant evosuite-test -Dtraced.wait=true
+"""
+
 from lxml import etree
 from pathlib import Path
 from copy import deepcopy
@@ -21,7 +29,7 @@ for xml in build_xmls:
     # Add conditional for evosuite-test task
     test_element = root.find("./target[@name='evosuite-test']")
 
-    # Executed when the option is  given "-Dtraced.wait=true"
+    # Executed when the option is given
     true_element = deepcopy(test_element)
     true_element.attrib["name"] = "evosuite-test-true"
     true_element.attrib["if"] = "${traced.wait}"

@@ -1,3 +1,7 @@
+"""
+This script reformats all the build XMLs so that future modifications will result in clean diffs.
+"""
+
 from lxml import etree
 from pathlib import Path
 

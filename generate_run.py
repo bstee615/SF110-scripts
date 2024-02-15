@@ -1,3 +1,7 @@
+"""
+This script runs "processing" actions on SF110 projects, mostly related to running ant tasks or running EvoSuite.
+"""
+
 from pathlib import Path
 import subprocess
 import json

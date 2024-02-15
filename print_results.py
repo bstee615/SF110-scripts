@@ -1,3 +1,7 @@
+"""
+This script summarizes the results from generate_run.py.
+"""
+
 import json
 import re
 import numpy as np
