@@ -22,6 +22,12 @@ python3 generate_run.py # Run EvoSuite on all programs/classes; should take a lo
 python3 print_results.py results*.jsonl # Print the results
 ```
 
+To run the tracer (WIP), see:
+
+```bash
+python3 add_jdwp_options.py # Add the option "traced.wait" to all build.xml files
+```
+
 # Citation
 
 If you use this software, please cite it as below.
