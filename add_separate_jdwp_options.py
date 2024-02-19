@@ -1,9 +1,10 @@
 """
 This script adds an Ant target, evosuite-trace, which waits for a debugger then executes the tests.
 Must specify an option ${traced.classname}, which sets the classname whose tests we want to execute.
+The fully-qualified name must be supplied (you can get from classes.txt) in filepath-format -- see example.
 The target and option can be activated like so:
 
-ant evosuite-trace -Dtraced.classname=AnyWrapperMsgGenerator # Example with 1_tullibee
+ant evosuite-trace -Dtraced.classname=com/ib/client/AnyWrapperMsgGenerator # Example with 1_tullibee
 """
 
 from lxml import etree
@@ -49,13 +50,13 @@ for xml in build_xmls:
     fileset_element.attrib["dir"] = "${evosuite.java}"
     for child in list(fileset_element):
         fileset_element.remove(child)
-    globber = etree.Element("include", name="**/${traced.classname}_ESTest.java")
-    globber.tail = "\n             "
-    fileset_element.append(globber)
+    include_element = etree.Element("include", name="${traced.classname}_ESTest.java")
+    include_element.tail = "\n             "
+    fileset_element.append(include_element)
     if fileset_element.find("./exclude[@name='**/*_scaffolding.java']") is None:
-        new_fileset_child = etree.Element("exclude", name="**/*_scaffolding.java")
-        fileset_element.append(new_fileset_child)
-        new_fileset_child.tail = "\n           "
+        exclude_element = etree.Element("exclude", name="**/*_scaffolding.java")
+        fileset_element.append(exclude_element)
+        exclude_element.tail = "\n           "
 
     # Insert conditions after original evosuite-test element
     root.insert(root.index(test_element)+1, trace_element)
