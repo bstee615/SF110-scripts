@@ -7,13 +7,13 @@ project="$1"
 class="$2"
 container_name="pair_${project}_$(echo $class | sed 's@/@.@g')"
 
-docker run -itd --name $container_name $image_name
+docker run -itd --name "$container_name" "$image_name"
 
 # Run unit test
-docker exec -it $container_name bash /workspace/pair_test.sh $project $class
+docker exec -it "$container_name" bash "$(dirname $0)/pair_test.sh" "$project" "$class"
 
 # Run tracer
-docker exec -it $container_name bash /workspace/pair_trace.sh
+docker exec -it "$container_name" bash "$(dirname $0)/pair_trace.sh"
 
 # Both processes will wait on a timeout until both are initialized.
 # Once each process initializes (expect to take only a few seconds), tracer will connect on port 8787.
