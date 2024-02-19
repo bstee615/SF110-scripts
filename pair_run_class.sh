@@ -1,10 +1,11 @@
 #!/bin/bash
+# Run tracing for a single class in a single project.
 
 # Run container disconnected
 image_name="benjijang/sf110:latest"
 project="$1"
 class="$2"
-container_name="pair_${project}_${class}"
+container_name="pair_${project}_$(echo $class | sed 's@/@.@g')"
 
 docker run -itd --name $container_name $image_name
 
