@@ -19,3 +19,5 @@ docker exec -it "$container_name" bash "$(dirname $0)/pair_trace.sh" &
 # Once each process initializes (expect to take only a few seconds), tracer will connect on port 8787.
 # Tracing will start and conclude automatically.
 wait
+
+docker rm -f "$container_name"
